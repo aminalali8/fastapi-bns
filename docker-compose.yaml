@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    environment:
+      - fastapi_bns_DB__uri=postgresql://postgres:postgres@db:5432/fastapi_bns
+      - fastapi_bns_DB__connect_args={}
+    volumes:
+      - web:/home/app/web
+    command: sh -cex "python -m fastapi_bns create-user admin admin --superuser"
+    depends_on:
+      - db
+  db:
+    build: postgres
+    image: fastapi_bns_postgres-13-alpine-multi-user
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    ports:
+      - 5435:5432
+    environment:
+      - POSTGRES_DBS=fastapi_bns, fastapi_bns_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+volumes:
+  postgresql_data:
+  web:
+    
