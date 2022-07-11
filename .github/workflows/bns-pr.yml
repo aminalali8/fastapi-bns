@@ -29,8 +29,7 @@ jobs:
         with: 
           fail-on-error: true
           script: |
-            import requests
-            import json 
+            import requests, os, json 
             from pprint import pprint
             url = "${{env.BNS_HOST}}/organizations/${{secrets.BNS_ORGID}}/projects/${{secrets.BNS_PROJECTID}}/environments"
             payload={}
@@ -46,7 +45,6 @@ jobs:
                 response.raise_for_status()
                 # access JSOn content
                 environments = json.loads(response.text)['hydra:member']
-                print(${{github.ref}})
                 pr_env = list(filter(lambda environment: pr_number in environment['name'] , environments))
                 # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
                 pprint(pr_env[0].status)
