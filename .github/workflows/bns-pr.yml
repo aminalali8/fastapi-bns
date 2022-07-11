@@ -26,7 +26,7 @@ jobs:
       - name: get-ephemeral-environment-status
         uses: jannekem/run-python-script-action@v1.2
         with: 
-          fail-on-error: false
+          fail-on-error: true
           script: |
             import requests
             import json 
