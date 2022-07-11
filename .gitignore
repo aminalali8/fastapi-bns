@@ -26,7 +26,13 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+<<<<<<< HEAD
 backup/*
+=======
+# custom 
+runpy.py
+backup
+>>>>>>> df442cc591c8d8f8722fa5b3bc8d8e80530acfc8
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

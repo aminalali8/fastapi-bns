@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class Content(SQLModel, table=True):
-    """This is an example model for your application.
+    """This is an example model for your application. example
 
     Replace with the *things* you do in your application.
     """
