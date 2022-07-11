@@ -37,9 +37,8 @@ jobs:
                 'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
             }
             env_pending = True
-            pr_number = ${{ github.ref }}
-            print('pr number')
-            print(pr_number)
+            pr_name = ${{ github.ref }}
+            pprint(pr_number)
             while env_pending :
                 response = requests.request("GET", url, headers=headers, data=payload)
                 response.raise_for_status()
