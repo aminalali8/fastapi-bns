@@ -23,6 +23,7 @@ jobs:
         with:
           python-version: '3.9'
       - run: python -m pip install requests
+      - run: PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
       - name: get-ephemeral-environment-status
         uses: jannekem/run-python-script-action@v1.2
         with: 
@@ -37,6 +38,8 @@ jobs:
                 'X-AUTH-TOKEN': '45:139471099092341aafe5545cbefac72d'
             }
             env_pending = True
+            print('pr number')
+            print $PR_NUMBER
             while env_pending :
                 response = requests.request("GET", url, headers=headers, data=payload)
                 response.raise_for_status()
