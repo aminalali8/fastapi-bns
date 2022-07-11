@@ -42,7 +42,8 @@ jobs:
                 response.raise_for_status()
                 # access JSOn content
                 environments = json.loads(response.text)['hydra:member']
-                pr_env = list(filter(lambda environment: environment['name'] == "${{ GITHUB_REF }}", environments))
+                print(${{GITHUB_REF}})
+                pr_env = list(filter(lambda environment: environment['name'] == ${{ GITHUB_REF }}, environments))
                 # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
                 pprint(pr_env[0].status)
 
