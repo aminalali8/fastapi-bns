@@ -1,0 +1,75 @@
+# Name of Action
+name: Deployment Test
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  pull_request:
+    branches: [ "main" ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  get-environment: 
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: "3.7"
+    env:
+      BNS_HOST: "https://api.environments.bunnyshell.com/api"
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Setup Python
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: get-ephemeral-environment-status
+        uses: jannekem/run-python-script-action@v1.2
+        with: 
+          fail-on-error: false
+          script: |
+            import requests
+            url = "$BNS_HOST/organizations/${{ secrets.BNS_ORGID }}/projects/${{ secrets.BNS_PROJECTID }}/environments"
+            payload={}
+            headers = {
+              'X-AUTH-TOKEN': '${{ secrets.BNS_TOKEN }}'
+            }
+            response = requests.request("GET", url, headers=headers, data=payload)
+            print(response)
+      - name: Print errors
+        if: steps.script.outputs.error == 'true'
+        run: |
+          printenv "SCRIPT_STDOUT"
+          printenv "SCRIPT_STDERR"
+        env:
+          SCRIPT_STDOUT: ${{ steps.script.outputs.stdout }}
+          SCRIPT_STDERR: ${{ steps.script.outputs.stderr }} 
+#       # Runs a set of commands using the runners shell
+#       - name: get environment status 
+#         run: |
+#           is_ready = false
+#           while [ !is_ready ]
+#           do
+#             curl --location --request GET 'https://api.environments.bunnyshell.com/api/organizations/${{ secrets.BNS_ORG_ID }}/projects/${{ secrets.BNS_PROJECTID }}/environments' \
+# --header 'X-AUTH-TOKEN: ${{ secrets.BNS_TOKEN }}' | jq 
+#           done 
+#       - name: Get Authentication TOKEN
+#         uses: fjogeleit/http-request-action@v1
+#         with:
+#           url: "$BNS_HOST/organizations/23/projects/432/environments" 
+#           method: 'GET'
+#           customHeaders: '{"Content-Type": "application/json"}'
+#           data: '{"key_1": "value_1", "key_2": "value_2"}'
+#       - name: Deploy Stage
+#         uses: fjogeleit/http-request-action@v1
+#         with:
+#           url: 'https://ansible.io/api/v2/job_templates/84/launch/'
+#           bearerToken: 
+#           method: 'POST'
+#           username: ${{ secrets.AWX_USER }}
+#           password: ${{ secrets.AWX_PASSWORD }}
+#           customHeaders: '{"Content-Type": "application/json"}'
+#           data: '{"key_1": "value_1", "key_2": "value_2"}'
+    
+
+
