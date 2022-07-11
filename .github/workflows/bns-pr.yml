@@ -44,7 +44,7 @@ jobs:
                 response.raise_for_status()
                 # access JSOn content
                 environments = json.loads(response.text)['hydra:member']
-                pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'ready' , environments))
+                pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'running' , environments))
                 # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
                 if len(pr_env) > 0 and pr_env['status'] != 'failed': 
                   ephemeral_env_id = pr_env['id']
