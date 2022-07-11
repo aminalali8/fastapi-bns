@@ -48,10 +48,10 @@ jobs:
                 # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
                 if len(pr_env) > 0:
                   pprint(pr_env) 
-                  ephemeral_env_id = pr_env[0]['id']
-                  os.environ['BNS_ENVID'] = pr_env[0]['id']
+                  pprint(pr_env[0]['id'])
+                  os.environ['BNS_ENVID'] = "${pr_env[0]['id']}"
                 else: 
-                  time.sleep(15)
+                  time.sleep(10)
       - run: echo $BNS_ENVID
       - name: Print errors
         if: steps.script.outputs.error == 'true'
