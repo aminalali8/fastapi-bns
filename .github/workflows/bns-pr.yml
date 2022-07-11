@@ -45,11 +45,11 @@ jobs:
                 # access JSOn content
                 environments = json.loads(response.text)['hydra:member']
                 pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'running' , environments))
-                # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
                 if len(pr_env) > 0:
                   pprint(pr_env) 
                   pprint(pr_env[0]['id'])
                   os.environ['BNS_ENVID'] = "${pr_env[0]['id']}"
+                  break
                 else: 
                   time.sleep(10)
       - run: echo $BNS_ENVID
