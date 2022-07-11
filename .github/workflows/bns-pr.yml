@@ -20,20 +20,21 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-      - run: python -m pip install requests
+      - run: python -m pip install requests json
       - name: get-ephemeral-environment-status
         uses: jannekem/run-python-script-action@v1.2
         with: 
           fail-on-error: false
           script: |
             import requests
+            import json 
             url = "${{ env.BNS_HOST }}/organizations/${{ secrets.BNS_ORGID }}/projects/${{ secrets.BNS_PROJECTID }}/environments"
             payload={}
             headers = {
               'X-AUTH-TOKEN': '${{ secrets.BNS_TOKEN }}'
             }
             response = requests.request("GET", url, headers=headers, data=payload)
-            print(response)
+            json.dumps(response)
       - name: Print errors
         if: steps.script.outputs.error == 'true'
         run: |
