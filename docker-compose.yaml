@@ -10,8 +10,8 @@ services:
     environment:
       - fastapi_bns_DB__uri=postgresql://postgres:postgres@db:5432/fastapi_bns
       - fastapi_bns_DB__connect_args={}
-    volumes:
-      - web:/home/app/web
+    # volumes:
+      # - web:/home/app/web
     command: >
       bash -cex "uvicorn fastapi_bns.app:app --host=0.0.0.0 --port=8000 --reload "
     depends_on:
@@ -19,15 +19,15 @@ services:
   db:
     build: postgres
     image: fastapi_bns_postgres-13-alpine-multi-user
-    volumes:
-      - postgresql_data:/var/lib/postgresql/data
+    # volumes:
+      # - postgresql_data:/var/lib/postgresql/data
     ports:
       - 5435:5432
     environment:
       - POSTGRES_DBS=fastapi_bns, fastapi_bns_test
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-volumes:
-  postgresql_data:
-  web:
+# volumes:
+#   postgresql_data:
+#   web:
     
