@@ -46,18 +46,15 @@ jobs:
                 environments = json.loads(response.text)['hydra:member']
                 pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'ready' , environments))
                 # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
-                if len(pr_env) > 0:
-                  pprint(pr_env)
-                  break
+                if len(pr_env) > 0 and pr_env['status'] != 'failed': 
+                  ephemeral_env_id = pr_env['id']
+                  bns_env_id = os.getenv('BNS_ENVID')
+                  with open(bns_env_id, "a") as dynEnvVar:
+                    dynEnvVar.write("BNS_ENVID=${bns_env_id}")
                 else: 
-                  retries += 1
-                  if retries == 3:
-                    print("timed out")
-                    break
-                  time.sleep(5)
-
-                # if response[0].status == 'ready':
-                #   env_pending = False
+                  time.sleep(30)
+      - run: python dynEnvVar.py 
+      - run: echo ${{ env.BNS_ENVID}}
       - name: Print errors
         if: steps.script.outputs.error == 'true'
         run: |
