@@ -37,7 +37,7 @@ jobs:
                 'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
             }
             env_pending = True
-            pr_number = os.getenv('PR_NUMBER')
+            pr_number = ${{ github.ref }}
             print('pr number')
             print(pr_number)
             while env_pending :
