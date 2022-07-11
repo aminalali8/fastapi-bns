@@ -6,6 +6,8 @@ on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   pull_request:
     branches: [ "main" ]
+  push: 
+    branches: [ "main" ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -24,21 +26,39 @@ jobs:
       - name: get-ephemeral-environment-status
         uses: jannekem/run-python-script-action@v1.2
         with: 
-          fail-on-error: false
+          fail-on-error: true
           script: |
-            import requests
-            import json 
-            url = "${{ env.BNS_HOST }}/organizations/${{ secrets.BNS_ORGID }}/projects/${{ secrets.BNS_PROJECTID }}/environments"
+            import requests, os, json, time
+            from pprint import pprint
+            url = "${{env.BNS_HOST}}/organizations/${{secrets.BNS_ORGID}}/projects/${{secrets.BNS_PROJECTID}}/environments"
             payload={}
             headers = {
-              'X-AUTH-TOKEN': '${{ secrets.BNS_TOKEN }}'
+                'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
             }
             env_pending = True
+            pr_name = '${{ github.ref }}'
+            retries = 0
+            pprint(pr_name)
             while env_pending :
-              response = requests.request("GET", url, headers=headers, data=payload)
-              json.dumps(response[0])
-              if response[0].status == 'ready':
-                env_pending = False
+                response = requests.request("GET", url, headers=headers, data=payload)
+                response.raise_for_status()
+                # access JSOn content
+                environments = json.loads(response.text)['hydra:member']
+                pprint(response)
+                pr_env = list(filter(lambda environment: pr_name in environment['name'] , environments))
+                # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
+                if len(pr_env) > 0:
+                  pprint(pr_env[0].status)
+                  break
+                else: 
+                  retries += 1
+                  if retries == 5:
+                    print("timed out")
+                    break
+                  time.sleep(5)
+
+                # if response[0].status == 'ready':
+                #   env_pending = False
       - name: Print errors
         if: steps.script.outputs.error == 'true'
         run: |
@@ -73,6 +93,3 @@ jobs:
 #           password: ${{ secrets.AWX_PASSWORD }}
 #           customHeaders: '{"Content-Type": "application/json"}'
 #           data: '{"key_1": "value_1", "key_2": "value_2"}'
-    
-
-
