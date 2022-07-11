@@ -38,13 +38,13 @@ jobs:
             }
             env_pending = True
             pr_name = '${{ github.ref }}'
-            pprint(pr_number)
+            pprint(pr_name)
             while env_pending :
                 response = requests.request("GET", url, headers=headers, data=payload)
                 response.raise_for_status()
                 # access JSOn content
                 environments = json.loads(response.text)['hydra:member']
-                pr_env = list(filter(lambda environment: pr_number in environment['name'] , environments))
+                pr_env = list(filter(lambda environment: pr_name in environment['name'] , environments))
                 # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
                 pprint(pr_env[0].status)
                 break
