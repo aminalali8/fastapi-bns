@@ -39,7 +39,7 @@ jobs:
             while env_pending :
               response = requests.request("GET", url, headers=headers, data=payload)
               environments = json.loads(response.text)
-              print(environments[0])
+              print(environments)
               break
               # if response[0].status == 'ready':
               #   env_pending = False
