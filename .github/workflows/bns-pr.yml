@@ -38,10 +38,10 @@ jobs:
             env_pending = True
             while env_pending :
               response = requests.request("GET", url, headers=headers, data=payload)
-              json.dumps(response)
+              print(response.json())
               break
-              if response[0].status == 'ready':
-                env_pending = False
+              # if response[0].status == 'ready':
+              #   env_pending = False
       - name: Print errors
         if: steps.script.outputs.error == 'true'
         run: |
