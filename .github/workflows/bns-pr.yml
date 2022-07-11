@@ -11,9 +11,6 @@ on:
 jobs:
   get-environment: 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: "3.7"
     env:
       BNS_HOST: "https://api.environments.bunnyshell.com/api"
     # Steps represent a sequence of tasks that will be executed as part of the job
