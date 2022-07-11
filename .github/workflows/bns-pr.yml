@@ -49,13 +49,10 @@ jobs:
                 if len(pr_env) > 0:
                   pprint(pr_env) 
                   ephemeral_env_id = pr_env[0]['id']
-                  bns_env_id = os.getenv('BNS_ENVID')
-                  with open(bns_env_id, "a") as dynEnvVar:
-                    dynEnvVar.write("BNS_ENVID=${bns_env_id}")
+                  os.environ['BNS_ENVID'] = pr_env[0]['id']
                 else: 
-                  time.sleep(30)
-      - run: python dynEnvVar.py 
-      - run: echo ${{ env.BNS_ENVID}}
+                  time.sleep(15)
+      - run: echo $BNS_ENVID
       - name: Print errors
         if: steps.script.outputs.error == 'true'
         run: |
