@@ -44,6 +44,7 @@ jobs:
                 response.raise_for_status()
                 # access JSOn content
                 environments = json.loads(response.text)['hydra:member']
+                pprint(response)
                 pr_env = list(filter(lambda environment: pr_name in environment['name'] , environments))
                 # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
                 pprint(pr_env[0].status)
