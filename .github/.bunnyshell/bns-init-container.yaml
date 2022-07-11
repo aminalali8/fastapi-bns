@@ -1,0 +1,10 @@
+kind: InitContainer
+version: v1
+name: initiator
+gitRepo: null
+gitBranch: null
+# gitApplicationPath: / # optional; for monorepo apps
+dockerCompose:
+  image: python:3.9
+  command: >
+    bash -cex "sleep 5"

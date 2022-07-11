@@ -4,26 +4,29 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     environment:
       - fastapi_bns_DB__uri=postgresql://postgres:postgres@db:5432/fastapi_bns
       - fastapi_bns_DB__connect_args={}
-    command: >
-      bash -cex "uvicorn fastapi_bns.app:app --host=0.0.0.0 --port=8000 --reload"
     volumes:
-      - .:/home/app/web
+      - web:/home/app/web
+    # command: sh -cex "uvicorn fastapi_bns.app:app --host=0.0.0.0 --port=8000 --reload "
     depends_on:
       - db
   db:
     build: postgres
     image: fastapi_bns_postgres-13-alpine-multi-user
     volumes:
-      - $HOME/.postgres/fastapi_bns_db/data/postgresql:/var/lib/postgresql/data
+      - postgresql_data:/var/lib/postgresql/data
     ports:
       - 5435:5432
     environment:
       - POSTGRES_DBS=fastapi_bns, fastapi_bns_test
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+volumes:
+  postgresql_data:
+  web:
+    

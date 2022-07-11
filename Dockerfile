@@ -32,5 +32,7 @@ COPY . $APP_HOME
 RUN chown -R app:app $APP_HOME
 
 USER app
- 
+
+#Production flag
+ENV fastapi_bns_ENV=production
 CMD ["uvicorn", "fastapi_bns.app:app", "--host=0.0.0.0","--port=8000","--reload"]
