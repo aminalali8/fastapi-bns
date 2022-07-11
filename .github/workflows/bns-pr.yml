@@ -34,12 +34,11 @@ jobs:
               'X-AUTH-TOKEN': '${{ secrets.BNS_TOKEN }}'
             }
             env_pending = True
-            while not env_pending :
+            while env_pending :
               response = requests.request("GET", url, headers=headers, data=payload)
               json.dumps(response[0])
               if response[0].status == 'ready':
                 env_pending = False
-            json.dumps(response)
       - name: Print errors
         if: steps.script.outputs.error == 'true'
         run: |
