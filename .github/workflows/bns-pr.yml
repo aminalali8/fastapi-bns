@@ -44,11 +44,11 @@ jobs:
                 response.raise_for_status()
                 # access JSOn content
                 environments = json.loads(response.text)['hydra:member']
-                pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'running' , environments))[0]
+                pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'running' , environments))
                 # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
                 if len(pr_env) > 0:
                   pprint(pr_env) 
-                  ephemeral_env_id = pr_env['id']
+                  ephemeral_env_id = pr_env[0]['id']
                   bns_env_id = os.getenv('BNS_ENVID')
                   with open(bns_env_id, "a") as dynEnvVar:
                     dynEnvVar.write("BNS_ENVID=${bns_env_id}")
