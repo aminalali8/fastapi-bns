@@ -52,7 +52,7 @@ jobs:
                   break
                 else: 
                   retries += 1
-                  if retries == 20:
+                  if retries == 3:
                     print("timed out")
                     break
                   time.sleep(5)
