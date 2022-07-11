@@ -33,7 +33,11 @@ jobs:
             headers = {
               'X-AUTH-TOKEN': '${{ secrets.BNS_TOKEN }}'
             }
-            response = requests.request("GET", url, headers=headers, data=payload)
+            env_is_ready = False
+            while !env_is_ready
+              response = requests.request("GET", url, headers=headers, data=payload)
+              if response[0].status == 'ready':
+                env_is_ready = True
             json.dumps(response)
       - name: Print errors
         if: steps.script.outputs.error == 'true'
