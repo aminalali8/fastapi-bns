@@ -37,7 +37,7 @@ jobs:
                 'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
             }
             env_pending = True
-            pr_name = ${{ github.ref }}
+            pr_name = '${{ github.ref }}'
             pprint(pr_number)
             while env_pending :
                 response = requests.request("GET", url, headers=headers, data=payload)
@@ -47,9 +47,6 @@ jobs:
                 pr_env = list(filter(lambda environment: pr_number in environment['name'] , environments))
                 # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
                 pprint(pr_env[0].status)
-
-                # pprint(environments)
-
                 break
                 # if response[0].status == 'ready':
                 #   env_pending = False
