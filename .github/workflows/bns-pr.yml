@@ -22,7 +22,8 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-      - run: python -m pip install requests
+      - name: install dependencies
+        run: python -m pip install requests
       - name: get-ephemeral-environment-status
         uses: jannekem/run-python-script-action@v1.2
         with: 
@@ -52,8 +53,8 @@ jobs:
                   break
                 else: 
                   time.sleep(10)
-      - run: echo $BNS_ENVID
-      - name: Print errors
+            print("Environment ${os.getenv('BNS_ENVID')} is ready.")
+      - name: print errors
         if: steps.script.outputs.error == 'true'
         run: |
           printenv "SCRIPT_STDOUT"
@@ -61,6 +62,23 @@ jobs:
         env:
           SCRIPT_STDOUT: ${{ steps.script.outputs.stdout }}
           SCRIPT_STDERR: ${{ steps.script.outputs.stderr }} 
+      - name: get application url
+        uses: jannekem/run-python-script-action@v1.2
+        with: 
+          fail-on-error: true
+          script: |
+            import requests, os, json, time
+            from pprint import pprint
+            url = "${{env.BNS_HOST}}/environments/${os.getenv('BNS_ENVID')}/components"
+            payload={}
+            headers = {
+                'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
+            }
+            response = requests.request("GET", url, headers=headers, data=payload)
+            response.raise_for_status()
+            # access JSOn content
+            config = json.loads(response.text)
+            pprint(config['builtinVariables'])
 #       # Runs a set of commands using the runners shell
 #       - name: get environment status 
 #         run: |
