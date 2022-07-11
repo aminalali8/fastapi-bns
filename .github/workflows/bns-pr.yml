@@ -32,21 +32,22 @@ jobs:
             import requests
             import json 
             from pprint import pprint
-            url = "https://api.environments.bunnyshell.com/api/organizations/23/projects/432/environments"
+            url = "${{env.BNS_HOST}}/organizations/${{secrets.BNS_ORGID}}/projects/${{secrets.BNS_PROJECTID}}/environments"
             payload={}
             headers = {
-                'X-AUTH-TOKEN': '45:139471099092341aafe5545cbefac72d'
+                'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
             }
             env_pending = True
+            pr_number = os.getenv('PR_NUMBER')
             print('pr number')
-            print $PR_NUMBER
+            print pr_number
             while env_pending :
                 response = requests.request("GET", url, headers=headers, data=payload)
                 response.raise_for_status()
                 # access JSOn content
                 environments = json.loads(response.text)['hydra:member']
                 print(${{github.ref}})
-                pr_env = list(filter(lambda environment: environment['name'] == ${{ github.ref }}, environments))
+                pr_env = list(filter(lambda environment: pr_number in environment['name'] , environments))
                 # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
                 pprint(pr_env[0].status)
 
