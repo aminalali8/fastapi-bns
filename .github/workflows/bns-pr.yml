@@ -69,7 +69,8 @@ jobs:
           script: |
             import requests, os, json, time
             from pprint import pprint
-            url = "${{env.BNS_HOST}}/environments/${os.getenv('BNS_ENVID')}/components"
+            envid = os.getenv('BNS_ENVID')
+            url = "${{env.BNS_HOST}}/environments/${envid}/components"
             payload={}
             headers = {
                 'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
