@@ -50,7 +50,7 @@ jobs:
                   # pprint(pr_env) 
                   # pprint(pr_env[0].get('id'))
                   # os.environ['BNS_ENVID'] = f"{pr_env[0]['id']}"
-                  set_env('BNS_ENVID', f'{pr_env[0].get("id")')
+                  set_env('BNS_ENVID', f'{pr_env[0].get("id")}')
                   break
                 else: 
                   time.sleep(10)
