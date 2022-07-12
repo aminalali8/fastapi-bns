@@ -42,10 +42,10 @@ jobs:
             pprint(pr_name)
             while env_pending :
                 response = requests.request("GET", url, headers=headers, data=payload)
-                response.raise_for_status()
-                # access JSOn content
+                response.raise_for_status()ß
                 environments = json.loads(response.text)['hydra:member']
-                pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'running' , environments))
+                # pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'running' , environments))
+                pr_env = list(filter(lambda environment: pr_name in environment['name'] , environments))
                 if len(pr_env) > 0:
                   pprint(pr_env) 
                   pprint(type(pr_env[0]))
