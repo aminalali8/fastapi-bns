@@ -6,8 +6,6 @@ on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   pull_request:
     branches: [ "main" ]
-  push: 
-    branches: [ "main" ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -22,7 +20,8 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-      - run: python -m pip install requests
+      - name: install dependencies
+        run: python -m pip install requests
       - name: get-ephemeral-environment-status
         uses: jannekem/run-python-script-action@v1.2
         with: 
@@ -36,30 +35,69 @@ jobs:
                 'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
             }
             env_pending = True
-            pr_name = '${{ github.ref }}'
+            pr_name = "PR-" + '${{ github.ref }}'.split("/")[2]
             retries = 0
             pprint(pr_name)
             while env_pending :
                 response = requests.request("GET", url, headers=headers, data=payload)
                 response.raise_for_status()
-                # access JSOn content
                 environments = json.loads(response.text)['hydra:member']
-                pprint(response)
-                pr_env = list(filter(lambda environment: pr_name in environment['name'] , environments))
-                # pr_env = list(filter(lambda environment: environment['name'] ==  "Development", environments))
+                pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'running' , environments))
                 if len(pr_env) > 0:
-                  pprint(pr_env[0].status)
+                  set_env('BNS_ENVID', f'{pr_env[0].get("id")}')
                   break
                 else: 
-                  retries += 1
-                  if retries == 5:
-                    print("timed out")
-                    break
-                  time.sleep(5)
-
-                # if response[0].status == 'ready':
-                #   env_pending = False
-      - name: Print errors
+                  time.sleep(10)
+            print("Environment ${os.getenv('BNS_ENVID')} is ready.")
+      - name: get-application-url
+        uses: jannekem/run-python-script-action@v1.2
+        with: 
+          fail-on-error: true
+          script: |
+            import requests, os, json, time
+            from pprint import pprint
+            envid = os.getenv('BNS_ENVID')
+            url = f"${{env.BNS_HOST}}/environments/{envid}/components"
+            payload={}
+            headers = {
+                'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
+            }
+            response = requests.request("GET", url, headers=headers, data=payload)
+            response.raise_for_status()
+            bns_ingress_url = json.loads(response.text)['builtinVariables']
+            set_env('APP_URL', bns_ingress_url[next(iter(bns_ingress_url))])
+      - name: get-application-url
+        uses: jannekem/run-python-script-action@v1.2
+        with: 
+          fail-on-error: true
+          script: |
+            import requests, os, json, time
+            from pprint import pprint
+            envid = os.getenv('BNS_ENVID')
+            url = f"${{env.BNS_HOST}}/environments/{envid}/components"
+            payload={}
+            headers = {
+                'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
+            }
+            response = requests.request("GET", url, headers=headers, data=payload)
+            response.raise_for_status()
+            bns_ingress_url = json.loads(response.text)['builtinVariables']
+            set_env('APP_URL', 'https://' + bns_ingress_url[next(iter(bns_ingress_url))])
+      - name: test-home-api
+        uses: jannekem/run-python-script-action@v1.2
+        with: 
+          fail-on-error: true
+          script: |
+            import requests, os, json, time
+            from pprint import pprint
+            url = os.getenv('APP_URL')
+            response = requests.request("GET", url)
+            response_json = json.loads(response.text)['message']
+            if response_json == 'Hello World!': 
+              print('Job Succeeded')
+            else: 
+              print('Job Failed')
+      - name: print errors
         if: steps.script.outputs.error == 'true'
         run: |
           printenv "SCRIPT_STDOUT"
@@ -67,29 +105,3 @@ jobs:
         env:
           SCRIPT_STDOUT: ${{ steps.script.outputs.stdout }}
           SCRIPT_STDERR: ${{ steps.script.outputs.stderr }} 
-#       # Runs a set of commands using the runners shell
-#       - name: get environment status 
-#         run: |
-#           is_ready = false
-#           while [ !is_ready ]
-#           do
-#             curl --location --request GET 'https://api.environments.bunnyshell.com/api/organizations/${{ secrets.BNS_ORG_ID }}/projects/${{ secrets.BNS_PROJECTID }}/environments' \
-# --header 'X-AUTH-TOKEN: ${{ secrets.BNS_TOKEN }}' | jq 
-#           done 
-#       - name: Get Authentication TOKEN
-#         uses: fjogeleit/http-request-action@v1
-#         with:
-#           url: "$BNS_HOST/organizations/23/projects/432/environments" 
-#           method: 'GET'
-#           customHeaders: '{"Content-Type": "application/json"}'
-#           data: '{"key_1": "value_1", "key_2": "value_2"}'
-#       - name: Deploy Stage
-#         uses: fjogeleit/http-request-action@v1
-#         with:
-#           url: 'https://ansible.io/api/v2/job_templates/84/launch/'
-#           bearerToken: 
-#           method: 'POST'
-#           username: ${{ secrets.AWX_USER }}
-#           password: ${{ secrets.AWX_PASSWORD }}
-#           customHeaders: '{"Content-Type": "application/json"}'
-#           data: '{"key_1": "value_1", "key_2": "value_2"}'
