@@ -55,14 +55,6 @@ jobs:
                 else: 
                   time.sleep(10)
             print("Environment ${os.getenv('BNS_ENVID')} is ready.")
-      - name: print errors
-        if: steps.script.outputs.error == 'true'
-        run: |
-          printenv "SCRIPT_STDOUT"
-          printenv "SCRIPT_STDERR"
-        env:
-          SCRIPT_STDOUT: ${{ steps.script.outputs.stdout }}
-          SCRIPT_STDERR: ${{ steps.script.outputs.stderr }} 
       - name: get application url
         uses: jannekem/run-python-script-action@v1.2
         with: 
@@ -79,33 +71,29 @@ jobs:
             response = requests.request("GET", url, headers=headers, data=payload)
             response.raise_for_status()
             bns_ingress_url = json.loads(response.text)['builtinVariables']
-            pprint(bns_ingress_url)
-            pprint(next(iter(bns_ingress_url)))
-            pprint(bns_ingress_url[next(iter(bns_ingress_url))])
             set_env('APP_URL', bns_ingress_url[next(iter(bns_ingress_url))])
-#       # Runs a set of commands using the runners shell
-#       - name: get environment status 
-#         run: |
-#           is_ready = false
-#           while [ !is_ready ]
-#           do
-#             curl --location --request GET 'https://api.environments.bunnyshell.com/api/organizations/${{ secrets.BNS_ORG_ID }}/projects/${{ secrets.BNS_PROJECTID }}/environments' \
-# --header 'X-AUTH-TOKEN: ${{ secrets.BNS_TOKEN }}' | jq 
-#           done 
-#       - name: Get Authentication TOKEN
-#         uses: fjogeleit/http-request-action@v1
-#         with:
-#           url: "$BNS_HOST/organizations/23/projects/432/environments" 
-#           method: 'GET'
-#           customHeaders: '{"Content-Type": "application/json"}'
-#           data: '{"key_1": "value_1", "key_2": "value_2"}'
-#       - name: Deploy Stage
-#         uses: fjogeleit/http-request-action@v1
-#         with:
-#           url: 'https://ansible.io/api/v2/job_templates/84/launch/'
-#           bearerToken: 
-#           method: 'POST'
-#           username: ${{ secrets.AWX_USER }}
-#           password: ${{ secrets.AWX_PASSWORD }}
-#           customHeaders: '{"Content-Type": "application/json"}'
-#           data: '{"key_1": "value_1", "key_2": "value_2"}'
+      - name: test application url
+        uses: jannekem/run-python-script-action@v1.2
+        with: 
+          fail-on-error: true
+          script: |
+            import requests, os, json, time
+            from pprint import pprint
+            envid = os.getenv('BNS_ENVID')
+            url = f"${{env.BNS_HOST}}/environments/{envid}/components"
+            payload={}
+            headers = {
+                'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
+            }
+            response = requests.request("GET", url, headers=headers, data=payload)
+            response.raise_for_status()
+            bns_ingress_url = json.loads(response.text)['builtinVariables']
+            set_env('APP_URL', bns_ingress_url[next(iter(bns_ingress_url))])
+      - name: print errors
+        if: steps.script.outputs.error == 'true'
+        run: |
+          printenv "SCRIPT_STDOUT"
+          printenv "SCRIPT_STDERR"
+        env:
+          SCRIPT_STDOUT: ${{ steps.script.outputs.stdout }}
+          SCRIPT_STDERR: ${{ steps.script.outputs.stderr }} 
