@@ -46,9 +46,6 @@ jobs:
                 environments = json.loads(response.text)['hydra:member']
                 pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'running' , environments))
                 if len(pr_env) > 0:
-                  # pprint(pr_env) 
-                  # pprint(pr_env[0].get('id'))
-                  # os.environ['BNS_ENVID'] = f"{pr_env[0]['id']}"
                   set_env('BNS_ENVID', f'{pr_env[0].get("id")}')
                   break
                 else: 
@@ -88,6 +85,20 @@ jobs:
             response.raise_for_status()
             bns_ingress_url = json.loads(response.text)['builtinVariables']
             set_env('APP_URL', bns_ingress_url[next(iter(bns_ingress_url))])
+      - name: test home api
+        uses: jannekem/run-python-script-action@v1.2
+        with: 
+          fail-on-error: true
+          script: |
+            import requests, os, json, time
+            from pprint import pprint
+            url = os.getenv('APP_URL')
+            headers = {} 
+            response = requests.request("GET", url, headers=headers, data=payload)
+            response.raise_for_status()
+            response_json = json.loads(response.text)['message']
+            if response_json == 'Hello World!': 
+              print 'Job Succeeded'
       - name: print errors
         if: steps.script.outputs.error == 'true'
         run: |
