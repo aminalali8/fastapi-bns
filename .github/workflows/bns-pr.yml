@@ -78,8 +78,11 @@ jobs:
             }
             response = requests.request("GET", url, headers=headers, data=payload)
             response.raise_for_status()
-            config = json.loads(response.text)
-            pprint(config['builtinVariables'])
+            bns_ingress_url = json.loads(response.text)['builtinVariables']
+            pprint(bns_ingress_url)
+            pprint(next(iter(bns_ingress_url)))
+            pprint(bns_ingress_url[next(iter(bns_ingress_url)))]
+            set_env('APP_URL', bns_ingress_url[next(iter(bns_ingress_url))])
 #       # Runs a set of commands using the runners shell
 #       - name: get environment status 
 #         run: |
