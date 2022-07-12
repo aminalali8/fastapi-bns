@@ -98,7 +98,7 @@ jobs:
             response.raise_for_status()
             response_json = json.loads(response.text)['message']
             if response_json == 'Hello World!': 
-              print 'Job Succeeded'
+              print('Job Succeeded')
       - name: print errors
         if: steps.script.outputs.error == 'true'
         run: |
