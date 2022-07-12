@@ -48,7 +48,8 @@ jobs:
                 pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'running' , environments))
                 if len(pr_env) > 0:
                   pprint(pr_env) 
-                  pprint(pr_env[0])
+                  pprint(type(pr_env[0]))
+                  pprint(pr_env[0].id)
                   # os.environ['BNS_ENVID'] = f"{pr_env[0]['id']}"
                   # set_env('BNS_ENVID', f'{pr_env[0]['id']')
                   break
