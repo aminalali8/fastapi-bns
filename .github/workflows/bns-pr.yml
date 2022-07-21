@@ -1,0 +1,110 @@
+# Name of Action
+name: Deployment Test
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  pull_request:
+    branches: [ "main" ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  get-environment: 
+    runs-on: ubuntu-latest
+    env:
+      BNS_HOST: "https://api.environments.bunnyshell.com/api"
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Setup Python
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: install dependencies
+        run: python -m pip install requests
+      - name: get-ephemeral-environment-status
+        uses: jannekem/run-python-script-action@v1.2
+        with: 
+          fail-on-error: true
+          script: |
+            import requests, os, json, time
+            from pprint import pprint
+            url = "${{env.BNS_HOST}}/organizations/${{secrets.BNS_ORGID}}/projects/${{secrets.BNS_PROJECTID}}/environments"
+            payload={}
+            headers = {
+                'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
+            }
+            env_pending = True
+            pr_name = "PR-" + '${{ github.ref }}'.split("/")[2]
+            retries = 0
+            pprint(pr_name)
+            while env_pending :
+                response = requests.request("GET", url, headers=headers, data=payload)
+                response.raise_for_status()
+                environments = json.loads(response.text)['hydra:member']
+                pr_env = list(filter(lambda environment: pr_name in environment['name'] and environment['status'] == 'running' , environments))
+                if len(pr_env) > 0:
+                  set_env('BNS_ENVID', f'{pr_env[0].get("id")}')
+                  break
+                else: 
+                  time.sleep(10)
+            print("Environment ${os.getenv('BNS_ENVID')} is ready.")
+      - name: get-application-url
+        uses: jannekem/run-python-script-action@v1.2
+        with: 
+          fail-on-error: true
+          script: |
+            import requests, os, json, time
+            from pprint import pprint
+            envid = os.getenv('BNS_ENVID')
+            url = f"${{env.BNS_HOST}}/environments/{envid}/components"
+            payload={}
+            headers = {
+                'X-AUTH-TOKEN': '${{secrets.BNS_TOKEN}}'
+            }
+            response = requests.request("GET", url, headers=headers, data=payload)
+            response.raise_for_status()
+            bns_ingress_url = json.loads(response.text)['builtinVariables']
+            set_env('APP_URL', f"https://{bns_ingress_url[next(iter(bns_ingress_url))]}")
+      - name: test-home-api
+        uses: jannekem/run-python-script-action@v1.2
+        with: 
+          fail-on-error: true
+          script: |
+            import requests, os, json, time
+            from pprint import pprint
+            url = os.getenv('APP_URL')
+            response = requests.request("GET", url)
+            response_json = json.loads(response.text)['message']
+            if response_json == 'Hello World!': 
+              print('Job Succeeded')
+            else: 
+              print('Job Failed')
+      - name: PR comment with reactions
+        if: ${{ success() }}
+        uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: |
+            Build Successful! :wave:
+          reactions: eyes, rocket
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create issue using REST API
+        if: ${{ failure() }}
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "title": "Automated issue for commit: ${{ github.sha }}",
+            "body": "This issue was automatically created by the GitHub Action workflow **${{ github.workflow }}**. \n\n The commit hash was: _${{ github.sha }}_."
+            }' \
+          --fail
+      - name: print errors
+        if: steps.script.outputs.error == 'true'
+        run: |
+          printenv "SCRIPT_STDOUT"
+          printenv "SCRIPT_STDERR"
+        env:
+          SCRIPT_STDOUT: ${{ steps.script.outputs.stdout }}
+          SCRIPT_STDERR: ${{ steps.script.outputs.stderr }} 
