@@ -23,7 +23,7 @@ def read(*paths, **kwargs):
 
 
 description = """
-fastapi_bns API helps you do awesome stuff. 🚀  Lets get productive! Let's Go!
+Bunnyshell helps you do awesome stuff. 🚀  Lets get productive!
 """
 
 app = FastAPI(
