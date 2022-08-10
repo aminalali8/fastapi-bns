@@ -23,7 +23,7 @@ def read(*paths, **kwargs):
 
 
 description = """
-Bunnyshell helps you do awesome stuff. 🚀  Lets get productive!
+Bunnyshell enables your developers, and streamlines your development! 🚀  Lets get productive! 
 """
 
 app = FastAPI(
