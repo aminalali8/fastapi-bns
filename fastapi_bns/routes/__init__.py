@@ -11,8 +11,8 @@ main_router.include_router(user_router, prefix="/user", tags=["user"])
 main_router.include_router(content_router, prefix="/content", tags=["content"])
 main_router.include_router(security_router, tags=["security"])
 
-if os.environ['REGISTRAR_ID'] is None:
-    os.environ['REGISTRAR_ID'] = 'UNDEFINED'
+try: print(os.environ['REGISTRAR_ID'])
+except: os.environ['REGISTRAR_ID'] = 'REGISTRAR_ID_GOES_HERE'
     
 
 @main_router.get("/")
