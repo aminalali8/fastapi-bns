@@ -76,7 +76,7 @@ jobs:
             url = os.getenv('APP_URL')
             response = requests.request("GET", url)
             response_json = json.loads(response.text)['message']
-            if response_json == 'Hello World!': 
+            if response_json.startswith('Hello World!'): 
               print('Job Succeeded')
             else: 
               print('Job Failed')
