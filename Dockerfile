@@ -14,7 +14,7 @@ FROM python:3.9
 RUN mkdir -p /home/app
 
 # Create the app user
-RUN groupadd app && useradd -g app app
+# RUN groupadd app && useradd -g app app
 
 # Create the home directory
 ENV HOME=/home/app
@@ -29,9 +29,9 @@ RUN pip install --no-cache /wheels/*
 
 COPY . $APP_HOME
 
-RUN chown -R app:app $APP_HOME
+# RUN chown -R app:app $APP_HOME
 
-USER app
+# USER app
 
 #Production flag
 ENV fastapi_bns_ENV='production'
