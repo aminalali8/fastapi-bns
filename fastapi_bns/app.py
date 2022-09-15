@@ -10,7 +10,7 @@ from .routes import main_router
 
 
 def read(*paths, **kwargs):
-    """Read the contents of a text file safely.
+    """Read the contents of a text file safely. Poweredbypercent
     >>> read("VERSION")
     """
     content = ""
