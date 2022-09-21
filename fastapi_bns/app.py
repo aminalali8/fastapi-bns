@@ -10,7 +10,7 @@ from .routes import main_router
 
 
 def read(*paths, **kwargs):
-    """Read the contents of a text file safely. Poweredbypercent
+    """Read the contents of a text file safely.
     >>> read("VERSION")
     """
     content = ""
@@ -23,7 +23,7 @@ def read(*paths, **kwargs):
 
 
 description = """
-Bunnyshell; Automate, streamline, and optimize your development cycles! 🚀  Lets get productive! test
+Bunnyshell; Automate, streamline, and optimize your development cycles! 🚀 
 """
 
 app = FastAPI(
