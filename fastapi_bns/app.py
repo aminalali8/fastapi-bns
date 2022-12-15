@@ -23,7 +23,7 @@ def read(*paths, **kwargs):
 
 
 description = """
-Bunnyshell; Automate, streamline, and optimize your development cycles! 🚀  Lets get productive! test
+Bunnyshell; Automate, streamline, and optimize your development cycles! 🚀  Leveraging Ephemerals.
 """
 
 app = FastAPI(
